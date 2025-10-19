@@ -1,0 +1,82 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36603.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradingApp.Domain", "SimpleTradingApp.Domain\SimpleTradingApp.Domain.csproj", "{9E7CF3E0-5186-448D-912F-F879742FEC76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradingApp.Infrastructure", "SimpleTradingApp.Infrastructure\SimpleTradingApp.Infrastructure.csproj", "{880DD511-636A-42B8-B94C-CF2A72963C00}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9E7CF3E0-5186-448D-912F-F879742FEC76} = {9E7CF3E0-5186-448D-912F-F879742FEC76}
+		{D5C152E2-28B4-4478-9DCF-79D0DC4EBE34} = {D5C152E2-28B4-4478-9DCF-79D0DC4EBE34}
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradingApp.Api", "SimpleTradingApp.Api\SimpleTradingApp.Api.csproj", "{8C3C2D5B-4A56-45D2-9B9E-4CCB8D8BC637}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradingApp.Application", "SimpleTradingApp.Application\SimpleTradingApp.Application.csproj", "{D5C152E2-28B4-4478-9DCF-79D0DC4EBE34}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9E7CF3E0-5186-448D-912F-F879742FEC76} = {9E7CF3E0-5186-448D-912F-F879742FEC76}
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradingApp.Domain.Tests", "SimpleTradingApp.Domain.Tests\SimpleTradingApp.Domain.Tests.csproj", "{63D67231-874A-4CE7-8B4B-714CCF4644CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradingApp.Application.Tests", "SimpleTradingApp.Application.Tests\SimpleTradingApp.Application.Tests.csproj", "{2A804E76-A076-4AC4-BDD1-C711C55B5510}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradingApp.Infrastructure.Tests", "SimpleTradingApp.Infrastructure.Tests\SimpleTradingApp.Infrastructure.Tests.csproj", "{7740EB82-13CC-4B81-96F7-2BB6447A08E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleTradingApp.Api.Tests", "SimpleTradingApp.Api.Tests\SimpleTradingApp.Api.Tests.csproj", "{1EE7926F-7F40-4A11-9C61-383EB1CC43AA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9E7CF3E0-5186-448D-912F-F879742FEC76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E7CF3E0-5186-448D-912F-F879742FEC76}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E7CF3E0-5186-448D-912F-F879742FEC76}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E7CF3E0-5186-448D-912F-F879742FEC76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{880DD511-636A-42B8-B94C-CF2A72963C00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{880DD511-636A-42B8-B94C-CF2A72963C00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{880DD511-636A-42B8-B94C-CF2A72963C00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{880DD511-636A-42B8-B94C-CF2A72963C00}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C3C2D5B-4A56-45D2-9B9E-4CCB8D8BC637}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C3C2D5B-4A56-45D2-9B9E-4CCB8D8BC637}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C3C2D5B-4A56-45D2-9B9E-4CCB8D8BC637}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C3C2D5B-4A56-45D2-9B9E-4CCB8D8BC637}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5C152E2-28B4-4478-9DCF-79D0DC4EBE34}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5C152E2-28B4-4478-9DCF-79D0DC4EBE34}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5C152E2-28B4-4478-9DCF-79D0DC4EBE34}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5C152E2-28B4-4478-9DCF-79D0DC4EBE34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63D67231-874A-4CE7-8B4B-714CCF4644CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63D67231-874A-4CE7-8B4B-714CCF4644CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63D67231-874A-4CE7-8B4B-714CCF4644CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63D67231-874A-4CE7-8B4B-714CCF4644CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A804E76-A076-4AC4-BDD1-C711C55B5510}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A804E76-A076-4AC4-BDD1-C711C55B5510}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A804E76-A076-4AC4-BDD1-C711C55B5510}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A804E76-A076-4AC4-BDD1-C711C55B5510}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7740EB82-13CC-4B81-96F7-2BB6447A08E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7740EB82-13CC-4B81-96F7-2BB6447A08E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7740EB82-13CC-4B81-96F7-2BB6447A08E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7740EB82-13CC-4B81-96F7-2BB6447A08E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EE7926F-7F40-4A11-9C61-383EB1CC43AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EE7926F-7F40-4A11-9C61-383EB1CC43AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EE7926F-7F40-4A11-9C61-383EB1CC43AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EE7926F-7F40-4A11-9C61-383EB1CC43AA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{63D67231-874A-4CE7-8B4B-714CCF4644CC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{2A804E76-A076-4AC4-BDD1-C711C55B5510} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{7740EB82-13CC-4B81-96F7-2BB6447A08E3} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{1EE7926F-7F40-4A11-9C61-383EB1CC43AA} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B7AFE783-0B0B-4CB5-9151-C4B7D4B16788}
+	EndGlobalSection
+EndGlobal
