@@ -13,5 +13,4 @@ public class TradesRepository : ITradesRepository
     {
         _context = context;
     }
-
 }

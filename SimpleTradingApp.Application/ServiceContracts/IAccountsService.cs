@@ -8,7 +8,7 @@ public interface IAccountsService
     /// Add new account
     /// </summary>
     /// <param name="createAccountDto"></param>
-    /// <returns>Returns newly added order; otherwise null</returns>
+    /// <returns>Returns newly added account; otherwise null</returns>
     Task<AccountResponse?> AddAccount(AddAccountDto createAccountDto);
 
     /// <summary>
@@ -17,4 +17,18 @@ public interface IAccountsService
     /// <param name="accountId"></param>
     /// <returns></returns>
     Task<bool> DeleteAccount(Guid accountId);
+
+    /// <summary>
+    /// Update account information
+    /// </summary>
+    /// <param name="updateAccountDto"></param>
+    /// <returns>Updated account data; otherwise null</returns>
+    Task<AccountResponse?> UpdateAccount(UpdateAccountDto updateAccountDto);
+
+    /// <summary>
+    /// Get account data by ID
+    /// </summary>
+    /// <param name="accountId"></param>
+    /// <returns>Account data matching the account ID; otherwise null</returns>
+    Task<AccountResponse?> GetAccountById(Guid accountId);
 }

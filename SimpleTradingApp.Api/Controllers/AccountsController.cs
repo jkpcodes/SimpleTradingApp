@@ -45,4 +45,38 @@ public class AccountsController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpPut("{accountId}")]
+    public async Task<ActionResult<AccountResponse>> UpdateAccount(Guid accountId, UpdateAccountDto updateAccountDto)
+    {
+        if (accountId == Guid.Empty || accountId != updateAccountDto.ID)
+        {
+            return BadRequest("Account ID is required and must match the ID in the request body.");
+        }
+
+        var updatedAccount = await _accountsService.UpdateAccount(updateAccountDto);
+        if (updatedAccount == null)
+        {
+            return NotFound(new { Message = $"Account with ID {accountId} not found."});
+        }
+
+        return Ok(updatedAccount);
+    }
+
+    [HttpGet("{accountId}")]
+    public async Task<ActionResult<AccountResponse>> GetAccountById(Guid accountId)
+    {
+        if (accountId == Guid.Empty)
+        {
+            return BadRequest("Account ID is required.");
+        }
+
+        var account = await _accountsService.GetAccountById(accountId);
+        if (account == null)
+        {
+            return NotFound(new { Message = $"Account with ID {accountId} not found."});
+        }
+
+        return Ok(account);
+    }
 }

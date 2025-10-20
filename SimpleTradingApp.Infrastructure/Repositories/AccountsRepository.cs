@@ -70,4 +70,26 @@ public class AccountsRepository : IAccountsRepository
 
         return result;
     }
+
+    public async Task<Account?> GetAccountById(Guid accountId, bool includeTrades = false)
+    {
+        var query = _context.Accounts.AsQueryable();
+
+        if (includeTrades)
+        {
+            query = query.Include(a => a.Trades);
+        }
+
+        return await query
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.ID == accountId);
+    }
+
+    public async Task<Account?> UpdateAccount(Account account)
+    {
+        _context.Accounts.Update(account);
+        var result = await _context.SaveChangesAsync();
+
+        return result == 1 ? account : null;
+    }
 }

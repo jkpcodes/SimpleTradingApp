@@ -88,4 +88,98 @@ public class AccountsControllerTests
 
         svc.Verify(svc => svc.DeleteAccount(id), Times.Once);
     }
+
+    [Fact]
+    public async Task GetAccountByID_ReturnsBadRequest_WhenAccountIdIsEmpty()
+    {
+        var svc = new Mock<IAccountsService>();
+        var controller = new AccountsController(svc.Object);
+
+        var result = await controller.GetAccountById(Guid.Empty);
+
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.BadRequest, badRequestResult.StatusCode);
+        svc.Verify(svc => svc.GetAccountById(It.IsAny<Guid>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetAccountByID_ReturnsNotFound_WhenServiceReturnsNull()
+    {
+        var svc = new Mock<IAccountsService>();
+        var accountId = Guid.NewGuid();
+        svc.Setup(s => s.GetAccountById(accountId))
+           .ReturnsAsync((AccountResponse?)null);
+        var controller = new AccountsController(svc.Object);
+
+        var result = await controller.GetAccountById(accountId);
+
+        var notFoundResult = Assert.IsType<NotFoundObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.NotFound, notFoundResult.StatusCode);
+        svc.Verify(svc => svc.GetAccountById(accountId), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAccountByID_ReturnsOk_WhenServiceReturnsAccountResponse()
+    {
+        var svc = new Mock<IAccountsService>();
+        var accountId = Guid.NewGuid();
+        var accountResponse = new AccountResponse(accountId, "John", "Doe", []);
+        svc.Setup(s => s.GetAccountById(accountId))
+           .ReturnsAsync(accountResponse);
+        var controller = new AccountsController(svc.Object);
+
+        var result = await controller.GetAccountById(accountId);
+
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.OK, okResult.StatusCode);
+        Assert.Equal(accountResponse, okResult.Value);
+        svc.Verify(svc => svc.GetAccountById(accountId), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateAccount_ReturnsBadRequest_WhenAccountIdIsEmpty()
+    {
+        var svc = new Mock<IAccountsService>();
+        var controller = new AccountsController(svc.Object);
+        var updateDto = new UpdateAccountDto(Guid.NewGuid(), "John", "Doe");
+
+        var result = await controller.UpdateAccount(Guid.Empty, updateDto);
+
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.BadRequest, badRequestResult.StatusCode);
+        svc.Verify(svc => svc.UpdateAccount(It.IsAny<UpdateAccountDto>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateAccount_ReturnsBadRequest_WhenAccountIdDoesNotMatchDtoId()
+    {
+        var svc = new Mock<IAccountsService>();
+        var controller = new AccountsController(svc.Object);
+        var updateDto = new UpdateAccountDto(Guid.NewGuid(), "John", "Doe");
+
+        var result = await controller.UpdateAccount(Guid.NewGuid(), updateDto);
+
+        var badRequestResult = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.BadRequest, badRequestResult.StatusCode);
+        svc.Verify(svc => svc.UpdateAccount(It.IsAny<UpdateAccountDto>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateAccount_ReturnsOk_WhenServiceReturnsAccountResponse()
+    {
+        var svc = new Mock<IAccountsService>();
+        var accountId = Guid.NewGuid();
+        var updateDto = new UpdateAccountDto(accountId, "John", "Doe");
+        var accountResponse = new AccountResponse(accountId, "John", "Doe", []);
+        svc.Setup(s => s.UpdateAccount(updateDto))
+           .ReturnsAsync(accountResponse);
+        var controller = new AccountsController(svc.Object);
+
+        var result = await controller.UpdateAccount(accountId, updateDto);
+
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.OK, okResult.StatusCode);
+        Assert.Equal(accountResponse, okResult.Value);
+        svc.Verify(svc => svc.UpdateAccount(updateDto), Times.Once);
+    }
 }
