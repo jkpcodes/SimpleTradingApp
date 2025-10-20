@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using SimpleTradingApp.Application.DTOs;
 using SimpleTradingApp.Application.IRepositories;
 using SimpleTradingApp.Domain.Entities;
 
@@ -91,5 +92,28 @@ public class AccountsRepository : IAccountsRepository
         var result = await _context.SaveChangesAsync();
 
         return result == 1 ? account : null;
+    }
+
+    public async Task<(IEnumerable<Account> Accounts, int TotalCount)> GetAccounts(PagingParameters pagingParams)
+    {
+        if (pagingParams.PageNumber < PagingParameters.MinPageNumber)
+            pagingParams.PageNumber = 1;
+
+        if (pagingParams.PageSize < PagingParameters.MinPageSize)
+            pagingParams.PageSize = 10;
+
+        // Order by LastName, then FirstName by default
+        var query = _context.Accounts.AsNoTracking()
+            .OrderBy(a => a.LastName)
+            .ThenBy(a => a.FirstName);
+
+        var total = await query.CountAsync();
+
+        var items = await query
+            .Skip((pagingParams.PageNumber - 1) * pagingParams.PageSize)
+            .Take(pagingParams.PageSize)
+            .ToListAsync();
+
+        return (items, total);
     }
 }

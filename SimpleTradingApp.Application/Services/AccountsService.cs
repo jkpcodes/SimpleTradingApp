@@ -59,4 +59,27 @@ public class AccountsService : IAccountsService
 
         return updatedAccount?.ToAccountResponse();
     }
+
+    public async Task<PaginatedResponse<AccountResponse>> GetAccounts(PagingParameters pagingParams)
+    {
+        if (pagingParams.PageNumber < PagingParameters.MinPageNumber)
+            pagingParams.PageNumber = 1;
+
+        if (pagingParams.PageSize < PagingParameters.MinPageSize)
+            pagingParams.PageSize = 10;
+
+        var (items, total) = await _accountsRepository.GetAccounts(pagingParams);
+
+        var mappedItems = items.Select(a => a.ToAccountResponse()).ToList();
+
+        var totalPages = (int)Math.Ceiling((double)total / pagingParams.PageSize);
+
+        return new PaginatedResponse<AccountResponse>(
+            mappedItems,
+            pagingParams.PageNumber,
+            pagingParams.PageSize,
+            total,
+            totalPages
+        );
+    }
 }

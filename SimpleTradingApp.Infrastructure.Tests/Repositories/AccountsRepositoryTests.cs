@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SimpleTradingApp.Infrastructure.Repositories;
 using SimpleTradingApp.Domain.Entities;
+using SimpleTradingApp.Application.DTOs;
 
 namespace SimpleTradingApp.Infrastructure.Tests.Repositories;
 
@@ -200,5 +201,70 @@ public class AccountsRepositoryTests
         Assert.NotNull(dbAccount);
         Assert.Equal("Updated", dbAccount.FirstName);
         Assert.Equal("Name", dbAccount.LastName);
+    }
+
+    [Fact]
+    public async Task GetAccounts_PagingParamsInRange_ReturnsPagedItemsAndCountWithOrdering()
+    {
+        using var context = GetInMemoryDbContext();
+        // Add 3 accounts with different last/first names to test ordering
+        var accounts = new List<Account>
+        {
+            new Account { ID = Guid.NewGuid(), FirstName = "John", LastName = "Doe" },
+            new Account { ID = Guid.NewGuid(), FirstName = "Jane", LastName = "Smith" },
+            new Account { ID = Guid.NewGuid(), FirstName = "Alice", LastName = "Brown" }
+        };
+
+        context.Accounts.AddRange(accounts);
+        await context.SaveChangesAsync();
+
+        var repo = new AccountsRepository(context);
+
+        // pageNumber = 1, pageSize = 2  -> should return first 2 accounts ordered by LastName, FirstName
+        var (itemsPage1, totalCount1) = await repo.GetAccounts(
+            new PagingParameters() { PageNumber = 1, PageSize = 2 });
+
+        Assert.Equal(3, totalCount1);
+        var page1List = itemsPage1.ToList();
+        Assert.Equal(2, page1List.Count);
+
+        // Verify ordering: 1st should be Alice Brown, 2nd John Doe
+        Assert.Equal("Brown", page1List[0].LastName);
+        Assert.Equal("Alice", page1List[0].FirstName);
+        Assert.Equal("Doe", page1List[1].LastName);
+        Assert.Equal("John", page1List[1].FirstName);
+
+        // pageNumber = 2, pageSize = 2 -> should return last account
+        var (itemsPage2, totalCount2) = await repo.GetAccounts(
+            new PagingParameters() { PageNumber = 2, PageSize = 2 });
+
+        Assert.Equal(3, totalCount2);
+        var page2List = itemsPage2.ToList();
+        Assert.Single(page2List);
+        Assert.Equal("Smith", page2List[0].LastName);
+        Assert.Equal("Jane", page2List[0].FirstName);
+    }
+
+    [Fact]
+    public async Task GetAccounts_PagingParamsOutOfRange_ReturnsEmptyItems()
+    {
+        using var context = GetInMemoryDbContext();
+        var accounts = new List<Account>
+        {
+            new Account { ID = Guid.NewGuid(), FirstName = "John", LastName = "Doe" },
+            new Account { ID = Guid.NewGuid(), FirstName = "Jane", LastName = "Smith" }
+        };
+
+        context.Accounts.AddRange(accounts);
+        await context.SaveChangesAsync();
+
+        var repo = new AccountsRepository(context);
+
+        // PageNumber = 3, PageSize = 2 -> only 1 page exists, so should return empty collection
+        var (items, totalCount) = await repo.GetAccounts(
+            new PagingParameters() { PageNumber = 3, PageSize = 2 });
+
+        Assert.Equal(2, totalCount);
+        Assert.Empty(items);
     }
 }

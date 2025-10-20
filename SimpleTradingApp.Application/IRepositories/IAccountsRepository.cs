@@ -1,4 +1,5 @@
-﻿using SimpleTradingApp.Domain.Entities;
+﻿using SimpleTradingApp.Application.DTOs;
+using SimpleTradingApp.Domain.Entities;
 
 namespace SimpleTradingApp.Application.IRepositories;
 public interface IAccountsRepository
@@ -31,4 +32,11 @@ public interface IAccountsRepository
     /// <param name="account"></param>
     /// <returns>Returns the updated account data, otherwise null</returns>
     Task<Account?> UpdateAccount(Account account);
+
+    /// <summary>
+    /// Get paginated list of accounts
+    /// </summary>
+    /// <param name="pagingParams"></param>
+    /// <returns>Returns items for the requested page and total count of accounts</returns>
+    Task<(IEnumerable<Account> Accounts, int TotalCount)> GetAccounts(PagingParameters pagingParams);
 }

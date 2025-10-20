@@ -195,4 +195,61 @@ public class AccountsServiceTests
             It.Is<Account>(a => a.ID == existingAccount.ID && a.FirstName == "Jane" && a.LastName == "Smith")),
             Times.Once);
     }
+
+    [Fact]
+    public async Task GetAccounts_InvalidPaginParameters_AndReturnsDefaultPaginatedResponse()
+    {
+        var repo = new Mock<IAccountsRepository>();
+        var accounts = new List<Account>
+        {
+            new Account { ID = Guid.NewGuid(), FirstName = "John", LastName = "Doe" },
+            new Account { ID = Guid.NewGuid(), FirstName = "Jane", LastName = "Smith" }
+        };
+
+        repo.Setup(r => r.GetAccounts(It.Is<PagingParameters>(p => p.PageNumber == 1 && p.PageSize == 10)))
+            .ReturnsAsync((accounts.AsEnumerable(), accounts.Count));
+        var service = new AccountsService(repo.Object);
+
+        var result = await service.GetAccounts(new PagingParameters() { PageNumber = 0, PageSize = 0 });
+
+        Assert.NotNull(result);
+        Assert.Equal(1, result.PageNumber);
+        Assert.Equal(10, result.PageSize);
+        Assert.Equal(2, result.TotalItems);
+        Assert.Equal(1, result.TotalPages);
+        repo.Verify(r => r.GetAccounts(It.Is<PagingParameters>(p => p.PageNumber == 1 && p.PageSize == 10)), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAccounts_MapsAccountsToResponses_AndReturnsCorrectPaginationMetadata()
+    {
+        var repo = new Mock<IAccountsRepository>();
+
+        var accounts = new List<Account>
+        {
+            new Account { ID = Guid.NewGuid(), FirstName = "John", LastName = "Alpha" },
+            new Account { ID = Guid.NewGuid(), FirstName = "Jane", LastName = "Beta" }
+        };
+
+        // Suppose there are 5 items, pageSize = 2 -> totalPages = 3
+        repo.Setup(r => r.GetAccounts(It.Is<PagingParameters>(p => p.PageNumber == 2 && p.PageSize == 2)))
+            .ReturnsAsync((accounts.AsEnumerable(), 5));
+
+        var service = new AccountsService(repo.Object);
+
+        var result = await service.GetAccounts(new PagingParameters { PageNumber = 2, PageSize = 2 });
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result.PageNumber);
+        Assert.Equal(2, result.PageSize);
+        Assert.Equal(5, result.TotalItems);
+        Assert.Equal(3, result.TotalPages);
+
+        var items = result.Items.ToList();
+        Assert.Equal(2, items.Count);
+        Assert.Contains(items, i => i.FirstName == "John" && i.LastName == "Alpha");
+        Assert.Contains(items, i => i.FirstName == "Jane" && i.LastName == "Beta");
+
+        repo.Verify(r => r.GetAccounts(It.Is<PagingParameters>(p => p.PageNumber == 2 && p.PageSize == 2)), Times.Once);
+    }
 }

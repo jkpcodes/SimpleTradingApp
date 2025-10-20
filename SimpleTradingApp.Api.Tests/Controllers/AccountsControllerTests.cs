@@ -3,6 +3,7 @@ using Moq;
 using SimpleTradingApp.Api.Controllers;
 using SimpleTradingApp.Application.DTOs;
 using SimpleTradingApp.Application.ServiceContracts;
+using SimpleTradingApp.Domain.Entities;
 using System.Net;
 using Xunit;
 
@@ -181,5 +182,126 @@ public class AccountsControllerTests
         Assert.Equal((int)HttpStatusCode.OK, okResult.StatusCode);
         Assert.Equal(accountResponse, okResult.Value);
         svc.Verify(svc => svc.UpdateAccount(updateDto), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAccounts_ReturnsBadRequest_WhenPageNumberIsLessThanOne()
+    {
+        var svc = new Mock<IAccountsService>();
+        var controller = new AccountsController(svc.Object);
+        var pagingParams = new PagingParameters()
+        {
+            PageNumber = 0,
+            PageSize = 10
+        };
+
+        var result = await controller.GetAccounts(pagingParams);
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.BadRequest, badRequest.StatusCode);
+        svc.Verify(s => s.GetAccounts(pagingParams), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetAccounts_ReturnsBadRequest_WhenPageSizeIsLessThanOne()
+    {
+        var svc = new Mock<IAccountsService>();
+        var controller = new AccountsController(svc.Object);
+        var pagingParams = new PagingParameters()
+        {
+            PageNumber = 1,
+            PageSize = 0
+        };
+
+        var result = await controller.GetAccounts(pagingParams);
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.BadRequest, badRequest.StatusCode);
+        svc.Verify(s => s.GetAccounts(pagingParams), Times.Never);
+    }
+
+
+    [Fact]
+    public async Task GetAccounts_ReturnsBadRequest_WhenPageSizeIsGreaterThanOneHundred()
+    {
+        var svc = new Mock<IAccountsService>();
+        var controller = new AccountsController(svc.Object);
+        var pagingParams = new PagingParameters()
+        {
+            PageNumber = 1,
+            PageSize = 101
+        };
+
+        var result = await controller.GetAccounts(pagingParams);
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.BadRequest, badRequest.StatusCode);
+        svc.Verify(s => s.GetAccounts(pagingParams), Times.Never);
+    }
+
+    [Fact]
+    public async Task GetAccounts_ReturnsOk_WithDefaultParameters()
+    {
+        var svc = new Mock<IAccountsService>();
+        var accountId = Guid.NewGuid();
+        var accountResponse = new AccountResponse(accountId, "John", "Doe", new List<Trade>());
+
+        var paginated = new PaginatedResponse<AccountResponse>(
+            new List<AccountResponse> { accountResponse },
+            PageNumber: 1,
+            PageSize: 10,
+            TotalItems: 1,
+            TotalPages: 1);
+        var pagingParams = new PagingParameters()
+        {
+            PageNumber = 1,
+            PageSize = 10
+        };
+
+        svc.Setup(s => s.GetAccounts(pagingParams))
+           .ReturnsAsync(paginated);
+
+        var controller = new AccountsController(svc.Object);
+
+        var result = await controller.GetAccounts(pagingParams);
+
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.OK, okResult.StatusCode);
+        Assert.Equal(paginated, okResult.Value);
+
+        svc.Verify(s => s.GetAccounts(pagingParams), Times.Once);
+    }
+
+    [Fact]
+    public async Task GetAccounts_ReturnsOk_WithCustomParameters()
+    {
+        var svc = new Mock<IAccountsService>();
+        var accountId = Guid.NewGuid();
+        var accountResponse = new AccountResponse(accountId, "John", "Doe", new List<Trade>());
+
+        var paginated = new PaginatedResponse<AccountResponse>(
+            new List<AccountResponse> { accountResponse },
+            PageNumber: 2,
+            PageSize: 1,
+            TotalItems: 2,
+            TotalPages: 2);
+        var pagingParams = new PagingParameters()
+        {
+            PageNumber = 2,
+            PageSize = 1
+        };
+
+        svc.Setup(s => s.GetAccounts(pagingParams))
+           .ReturnsAsync(paginated);
+
+        var controller = new AccountsController(svc.Object);
+
+        var result = await controller.GetAccounts(pagingParams);
+
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.OK, okResult.StatusCode);
+        Assert.Equal(paginated, okResult.Value);
+
+        svc.Verify(s => s.GetAccounts(pagingParams), Times.Once);
     }
 }

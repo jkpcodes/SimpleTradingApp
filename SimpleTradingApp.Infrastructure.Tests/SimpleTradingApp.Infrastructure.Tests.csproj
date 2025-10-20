@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SimpleTradingApp.Application\SimpleTradingApp.Application.csproj" />
     <ProjectReference Include="..\SimpleTradingApp.Domain\SimpleTradingApp.Domain.csproj" />
     <ProjectReference Include="..\SimpleTradingApp.Infrastructure\SimpleTradingApp.Infrastructure.csproj" />
   </ItemGroup>
