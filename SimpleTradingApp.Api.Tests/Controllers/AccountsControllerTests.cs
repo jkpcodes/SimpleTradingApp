@@ -304,4 +304,68 @@ public class AccountsControllerTests
 
         svc.Verify(s => s.GetAccounts(pagingParams), Times.Once);
     }
+
+    [Fact]
+    public async Task SearchAccounts_ReturnsBadRequest_WhenPageNumberLessThanOne()
+    {
+        var svc = new Mock<IAccountsService>();
+        var controller = new AccountsController(svc.Object);
+
+        var searchParams = new SearchPagingParameters { PageNumber = 0, PageSize = 10 };
+
+        var result = await controller.SearchAccounts(searchParams);
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.BadRequest, badRequest.StatusCode);
+        svc.Verify(s => s.SearchAccounts(It.IsAny<SearchPagingParameters>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SearchAccounts_ReturnsBadRequest_WhenPageSizeOutOfRange()
+    {
+        var svc = new Mock<IAccountsService>();
+        var controller = new AccountsController(svc.Object);
+
+        var searchParams = new SearchPagingParameters { PageNumber = 1, PageSize = 0 };
+
+        var result = await controller.SearchAccounts(searchParams);
+
+        var badRequest = Assert.IsType<BadRequestObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.BadRequest, badRequest.StatusCode);
+        svc.Verify(s => s.SearchAccounts(It.IsAny<SearchPagingParameters>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task SearchAccounts_ReturnsOk_WhenSearchAccountsIsCalled()
+    {
+        var svc = new Mock<IAccountsService>();
+
+        var paginated = new PaginatedResponse<AccountResponse>(
+            new List<AccountResponse> { 
+                new AccountResponse(Guid.NewGuid(), "John", "Doe", new List<Trade>()) },
+            PageNumber: 1,
+            PageSize: 10,
+            TotalItems: 1,
+            TotalPages: 1);
+
+        svc.Setup(s => s.SearchAccounts(It.Is<SearchPagingParameters>(
+                p => p.PageNumber == 1 && p.PageSize == 10 && p.LastName == "Smith")))
+           .ReturnsAsync(paginated);
+
+        var controller = new AccountsController(svc.Object);
+
+        var searchParams = new SearchPagingParameters {
+            PageNumber = 1,
+            PageSize = 10,
+            LastName = "Smith" };
+
+        var result = await controller.SearchAccounts(searchParams);
+
+        var okResult = Assert.IsType<OkObjectResult>(result.Result);
+        Assert.Equal((int)HttpStatusCode.OK, okResult.StatusCode);
+        Assert.Equal(paginated, okResult.Value);
+
+        svc.Verify(s => s.SearchAccounts(It.Is<SearchPagingParameters>(
+            p => p.PageNumber == 1 && p.PageSize == 10 && p.LastName == "Smith")), Times.Once);
+    }
 }

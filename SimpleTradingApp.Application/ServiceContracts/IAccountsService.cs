@@ -38,4 +38,11 @@ public interface IAccountsService
     /// <param name="pagingParams"></param>
     /// <returns>Paginated response containing account items and metadata</returns>
     Task<PaginatedResponse<AccountResponse>> GetAccounts(PagingParameters pagingParams);
+
+    /// <summary>
+    /// Get a paginated list of accounts based on search criteria
+    /// </summary>
+    /// <param name="searchParams"></param>
+    /// <returns>Paginated response containing account items and metadata</returns>
+    Task<PaginatedResponse<AccountResponse>> SearchAccounts(SearchPagingParameters searchParams);
 }

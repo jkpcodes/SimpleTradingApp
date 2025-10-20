@@ -95,4 +95,21 @@ public class AccountsController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpGet("search")]
+    public async Task<ActionResult<PaginatedResponse<AccountResponse>>> SearchAccounts(
+        [FromQuery] SearchPagingParameters searchParams)
+    {
+
+        if (searchParams.PageNumber < PagingParameters.MinPageNumber)
+            return BadRequest("Page number must be greater than 0.");
+
+        if (searchParams.PageSize < PagingParameters.MinPageSize ||
+                searchParams.PageSize > PagingParameters.MaxPageSize)
+            return BadRequest("Page size must be between 1 and 100");
+
+        var result = await _accountsService.SearchAccounts(searchParams);
+
+        return Ok(result);
+    }
 }

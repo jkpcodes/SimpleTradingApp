@@ -39,4 +39,11 @@ public interface IAccountsRepository
     /// <param name="pagingParams"></param>
     /// <returns>Returns items for the requested page and total count of accounts</returns>
     Task<(IEnumerable<Account> Accounts, int TotalCount)> GetAccounts(PagingParameters pagingParams);
+
+    /// <summary>
+    /// Get a paginated list of accounts based on search criteria
+    /// </summary>
+    /// <param name="searchParams"></param>
+    /// <returns>Returns items for the requested page and total count of search results</returns>
+    Task<(IEnumerable<Account> Accounts, int TotalCount)> SearchAccounts(SearchPagingParameters searchParams);
 }

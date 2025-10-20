@@ -197,7 +197,7 @@ public class AccountsServiceTests
     }
 
     [Fact]
-    public async Task GetAccounts_InvalidPaginParameters_AndReturnsDefaultPaginatedResponse()
+    public async Task GetAccounts_InvalidPagingParameters_AndReturnsDefaultPaginatedResponse()
     {
         var repo = new Mock<IAccountsRepository>();
         var accounts = new List<Account>
@@ -251,5 +251,99 @@ public class AccountsServiceTests
         Assert.Contains(items, i => i.FirstName == "Jane" && i.LastName == "Beta");
 
         repo.Verify(r => r.GetAccounts(It.Is<PagingParameters>(p => p.PageNumber == 2 && p.PageSize == 2)), Times.Once);
+    }
+
+    [Fact]
+    public async Task SearchAccounts_InvalidPagingParameters_AndReturnsDefaultPaginatedResponse()
+    {
+        var repo = new Mock<IAccountsRepository>();
+
+        repo.Setup(r => r.SearchAccounts(It.Is<SearchPagingParameters>(p =>
+                p.PageNumber == 1 && p.PageSize == 10)))
+            .ReturnsAsync((Enumerable.Empty<Account>(), 0));
+        var service = new AccountsService(repo.Object);
+
+        var searchParams = new SearchPagingParameters
+        {
+            PageNumber = 0,
+            PageSize = 0,
+            LastName = "Smith",
+            ID = ""
+        };
+
+        var result = await service.SearchAccounts(searchParams);
+
+        Assert.NotNull(result);
+        // Service should normalize invalid paging to defaults: PageNumber = 1, PageSize = 10
+        repo.Verify(r => r.SearchAccounts(It.Is<SearchPagingParameters>(p =>
+            p.PageNumber == 1 && p.PageSize == 10 && p.LastName == "Smith")), Times.Once);
+    }
+
+    [Fact]
+    public async Task SearchAccounts_WithEmptySearchString_ReturnsAllAccounts()
+    {
+        var repo = new Mock<IAccountsRepository>();
+        var accounts = new List<Account>
+        {
+            new Account { ID = Guid.NewGuid(), FirstName = "John", LastName = "Doe" },
+            new Account { ID = Guid.NewGuid(), FirstName = "Jane", LastName = "Smith" }
+        };
+        repo.Setup(r => r.SearchAccounts(It.Is<SearchPagingParameters>(p =>
+                p.PageNumber == 1 && p.PageSize == 10 && string.IsNullOrEmpty(p.LastName) && string.IsNullOrEmpty(p.ID))))
+            .ReturnsAsync((accounts.AsEnumerable(), accounts.Count));
+
+        var service = new AccountsService(repo.Object);
+
+        var searchParams = new SearchPagingParameters
+        {
+            PageNumber = 1,
+            PageSize = 10,
+            LastName = "",
+            ID = ""
+        };
+
+        var result = await service.SearchAccounts(searchParams);
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result.TotalItems);
+        Assert.Equal(1, result.TotalPages);
+        Assert.Equal(2, result.Items.Count());
+        repo.Verify(r => r.SearchAccounts(It.Is<SearchPagingParameters>(p =>
+            p.PageNumber == 1 && p.PageSize == 10 && string.IsNullOrEmpty(p.LastName) &&
+            string.IsNullOrEmpty(p.ID))), Times.Once);
+    }
+
+    [Fact]
+    public async Task SearchAccounts_WithLastNameSearchString_ReturnsMatchingAccounts()
+    {
+        var repo = new Mock<IAccountsRepository>();
+        var accounts = new List<Account>
+        {
+            new Account { ID = Guid.NewGuid(), FirstName = "John", LastName = "Smith" },
+            new Account { ID = Guid.NewGuid(), FirstName = "Jane", LastName = "Doe" }
+        };
+        repo.Setup(r => r.SearchAccounts(It.Is<SearchPagingParameters>(p =>
+                p.PageNumber == 1 && p.PageSize == 10 && p.LastName == "Doe" && string.IsNullOrEmpty(p.ID))))
+            .ReturnsAsync((accounts.AsEnumerable(), accounts.Count));
+
+        var service = new AccountsService(repo.Object);
+
+        var searchParams = new SearchPagingParameters
+        {
+            PageNumber = 1,
+            PageSize = 10,
+            LastName = "Doe",
+            ID = ""
+        };
+
+        var result = await service.SearchAccounts(searchParams);
+
+        Assert.NotNull(result);
+        Assert.Equal(2, result.TotalItems);
+        Assert.Equal(1, result.TotalPages);
+        Assert.Equal(2, result.Items.Count());
+        repo.Verify(r => r.SearchAccounts(It.Is<SearchPagingParameters>(p =>
+            p.PageNumber == 1 && p.PageSize == 10 && p.LastName == "Doe" &&
+            string.IsNullOrEmpty(p.ID))), Times.Once);
     }
 }

@@ -267,4 +267,132 @@ public class AccountsRepositoryTests
         Assert.Equal(2, totalCount);
         Assert.Empty(items);
     }
+
+    [Fact]
+    public async Task SearchAccounts_ByFullId_ReturnsOnlyMatchingAccount()
+    {
+        using var context = GetInMemoryDbContext();
+        var repo = new AccountsRepository(context);
+
+        var a1 = new Account { ID = Guid.NewGuid(), FirstName = "John", LastName = "Doe" };
+        var a2 = new Account { ID = Guid.NewGuid(), FirstName = "Jane", LastName = "Smith" };
+        context.Accounts.AddRange(a1, a2);
+        await context.SaveChangesAsync();
+
+        var (items, totalCount) = await repo.SearchAccounts(
+            new SearchPagingParameters()
+            {
+                ID = a1.ID.ToString(),
+                PageNumber = 1,
+                PageSize = 10
+            });
+
+        Assert.Equal(1, totalCount);
+        var list = items.ToList();
+        Assert.Single(list);
+        Assert.Equal(a1.ID, list[0].ID);
+    }
+
+    [Fact]
+    public async Task SearchAccounts_ByPartialId_ReturnsOnlyMatchingAccount()
+    {
+        using var context = GetInMemoryDbContext();
+        var repo = new AccountsRepository(context);
+
+        var a1 = new Account { ID = Guid.NewGuid(), FirstName = "John", LastName = "Doe" };
+        var a2 = new Account { ID = Guid.NewGuid(), FirstName = "Jane", LastName = "Smith" };
+        context.Accounts.AddRange(a1, a2);
+        await context.SaveChangesAsync();
+
+        // take first 8 chars of GUID to act as partial filter
+        var partialId = a1.ID.ToString().Substring(0, 8);
+
+        var (items, totalCount) = await repo.SearchAccounts(
+            new SearchPagingParameters()
+            {
+                ID = partialId,
+                PageNumber = 1,
+                PageSize = 10
+            });
+
+        Assert.Equal(1, totalCount);
+        var list = items.ToList();
+        Assert.Single(list);
+        Assert.Equal(a1.ID, list[0].ID);
+    }
+
+    [Fact]
+    public async Task SearchAccounts_ByLastName_ReturnsOnlyMatchingAccount()
+    {
+        using var context = GetInMemoryDbContext();
+        var repo = new AccountsRepository(context);
+
+        var a1 = new Account { ID = Guid.NewGuid(), FirstName = "John", LastName = "Doe" };
+        var a2 = new Account { ID = Guid.NewGuid(), FirstName = "Jane", LastName = "Smith" };
+        context.Accounts.AddRange(a1, a2);
+        await context.SaveChangesAsync();
+
+        var (items, totalCount) = await repo.SearchAccounts(
+            new SearchPagingParameters()
+            {
+                LastName = "DO",
+                PageNumber = 1,
+                PageSize = 10
+            });
+
+        Assert.Equal(1, totalCount);
+        var list = items.ToList();
+        Assert.Single(list);
+        Assert.Equal(a1.ID, list[0].ID);
+    }
+
+    [Fact]
+    public async Task SearchAccounts_UsingBothFilters_ReturnsMatchingAccount()
+    {
+        using var context = GetInMemoryDbContext();
+        var repo = new AccountsRepository(context);
+
+        var a1 = new Account { ID = Guid.NewGuid(), FirstName = "John", LastName = "Doe" };
+        var a2 = new Account { ID = Guid.NewGuid(), FirstName = "Jane", LastName = "Smith" };
+        context.Accounts.AddRange(a1, a2);
+        await context.SaveChangesAsync();
+
+        var (items, totalCount) = await repo.SearchAccounts(
+            new SearchPagingParameters()
+            {
+                ID = a1.ID.ToString().Substring(0, 8),
+                LastName = "Doe",
+                PageNumber = 1,
+                PageSize = 10
+            });
+
+        Assert.Equal(1, totalCount);
+        var list = items.ToList();
+        Assert.Single(list);
+        Assert.Equal(a1.ID, list[0].ID);
+    }
+
+    [Fact]
+    public async Task SearchAccounts_UsingBothFilters_ReturnsNoMatchingAccount()
+    {
+        using var context = GetInMemoryDbContext();
+        var repo = new AccountsRepository(context);
+
+        var a1 = new Account { ID = Guid.NewGuid(), FirstName = "John", LastName = "Doe" };
+        var a2 = new Account { ID = Guid.NewGuid(), FirstName = "Jane", LastName = "Smith" };
+        context.Accounts.AddRange(a1, a2);
+        await context.SaveChangesAsync();
+
+        var (items, totalCount) = await repo.SearchAccounts(
+            new SearchPagingParameters()
+            {
+                ID = a1.ID.ToString().Substring(0, 8),
+                LastName = "NotExist",
+                PageNumber = 1,
+                PageSize = 10
+            });
+
+        Assert.Equal(0, totalCount);
+        Assert.Empty(items);
+    }
 }

@@ -82,4 +82,27 @@ public class AccountsService : IAccountsService
             totalPages
         );
     }
+
+    public async Task<PaginatedResponse<AccountResponse>> SearchAccounts(SearchPagingParameters searchParams)
+    {
+        if (searchParams.PageNumber < PagingParameters.MinPageNumber)
+            searchParams.PageNumber = 1;
+
+        if (searchParams.PageSize < PagingParameters.MinPageSize)
+            searchParams.PageSize = 10;
+
+        var (items, total) = await _accountsRepository.SearchAccounts(searchParams);
+
+        var mappedItems = items.Select(a => a.ToAccountResponse()).ToList();
+
+        var totalPages = (int)Math.Ceiling((double)total / searchParams.PageSize);
+
+        return new PaginatedResponse<AccountResponse>(
+            mappedItems,
+            searchParams.PageNumber,
+            searchParams.PageSize,
+            total,
+            totalPages
+        );
+    }
 }
