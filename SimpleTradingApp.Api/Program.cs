@@ -1,15 +1,34 @@
 using Microsoft.EntityFrameworkCore;
+using SimpleTradingApp.Api.Middleware;
 using SimpleTradingApp.Infrastructure;
+using SimpleTradingApp.Application;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Inject dependencies from other layers
 builder.Services.AddInfrastructureLayer(builder.Configuration);
+builder.Services.AddApplicationLayer();
 
 builder.Services.AddControllers();
 
+builder.Services.AddFluentValidationAutoValidation();
+
+// Add swagger services
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
+app.UseExceptionMiddleware();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
 app.MapControllers();
 
 // Apply migrations automatically on startup

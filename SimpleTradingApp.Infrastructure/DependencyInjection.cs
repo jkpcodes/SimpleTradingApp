@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SimpleTradingApp.Application.IRepositories;
+using SimpleTradingApp.Infrastructure.Repositories;
 
 namespace SimpleTradingApp.Infrastructure;
 
@@ -21,6 +23,10 @@ public static class DependencyInjection
             options.UseNpgsql(connectionString, b =>
                 b.MigrationsAssembly(typeof(AppDbContext).Assembly.GetName().Name));
         });
+
+        services.AddScoped<IAccountsRepository, AccountsRepository>();
+        services.AddScoped<ITradesRepository, TradesRepository>();
+
         return services;
     }
 }
