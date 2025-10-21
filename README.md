@@ -23,7 +23,7 @@ SimpleTradingApp/
 ├── SimpleTradingApp.Api/            # REST API layer
 │   ├── Controllers/                 # API controllers
 │   └── Middleware/                  # Custom middleware
-└── *.Tests/                        # Unit and integration tests
+└── *.Tests/                        # Unit tests
 ```
 
 ## 🚀 Features
