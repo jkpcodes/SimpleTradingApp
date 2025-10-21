@@ -11,6 +11,7 @@ public static class DependencyInjection
     public static IServiceCollection AddApplicationLayer(this IServiceCollection services)
     {
         services.AddScoped<IAccountsService, AccountsService>();
+        services.AddScoped<ITradesService, TradesService>();
         services.AddValidatorsFromAssemblyContaining<AddAccountDtoValidator>();
 
         return services;
