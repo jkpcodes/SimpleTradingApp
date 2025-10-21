@@ -140,6 +140,7 @@ dotnet test --collect:"XPlat Code Coverage"
 - `DELETE /api/accounts/{accountId}` - Delete an account
 - `GET /api/accounts/{accountId}` - Get account details
 - `GET /api/accounts` - Get all accounts
+- `GET /api/accounts/search` - Get accounts based on search filters
 
 ### Trades
 - `POST /api/trades` - Place a new trade
@@ -211,21 +212,6 @@ Application settings can be configured in:
 - `appsettings.json` - Default settings
 - `appsettings.Development.json` - Development environment
 - User Secrets - Sensitive data (database credentials)
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add/update tests
-5. Ensure all tests pass
-6. Submit a pull request
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
 
 ## 🚨 Important Notes
 
