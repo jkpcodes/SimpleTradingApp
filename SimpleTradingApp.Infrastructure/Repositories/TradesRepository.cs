@@ -22,4 +22,19 @@ public class TradesRepository : ITradesRepository
         await _context.SaveChangesAsync();
         return trade;
     }
+
+    public async Task<Trade?> GetTradeById(Guid tradeId)
+    {
+        return await _context.Trades
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.ID == tradeId);
+    }
+
+    public async Task<Trade?> UpdateTrade(Trade trade)
+    {
+        _context.Trades.Update(trade);
+        var result = await _context.SaveChangesAsync();
+
+        return result > 0 ? trade : null;
+    }
 }

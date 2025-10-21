@@ -35,4 +35,23 @@ public class TradesService : ITradesService
 
         return result.ToTradeResponse();
     }
+
+    public async Task<TradeResponse?> UpdateTradeStatus(UpdateTradeStatusDto updateTradeStatusDto)
+    {
+        var existingTrade = await _tradesRepository.GetTradeById(updateTradeStatusDto.ID);
+        if (existingTrade == null)
+        {
+            return null;
+        }
+
+        existingTrade.Status = updateTradeStatusDto.Status;
+
+        var updatedTrade = await _tradesRepository.UpdateTrade(existingTrade);
+        if (updatedTrade == null)
+        {
+            return null;
+        }
+
+        return updatedTrade.ToTradeResponse();
+    }
 }

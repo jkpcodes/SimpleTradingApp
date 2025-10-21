@@ -102,4 +102,104 @@ public class TradesServiceTests
             t.Type == dto.Type
         )), Times.Once);
     }
+
+    [Fact]
+    public async Task UpdateTradeStatus_ReturnsNull_WhenGetTradeByIdReturnsNull()
+    {
+        var tradesRepo = new Mock<ITradesRepository>();
+        tradesRepo.Setup(r => r.GetTradeById(It.IsAny<Guid>()))
+            .ReturnsAsync((Trade?)null);
+
+        var accountsRepo = new Mock<IAccountsRepository>();
+        var service = new TradesService(tradesRepo.Object, accountsRepo.Object);
+
+        var dto = new UpdateTradeStatusDto(Guid.NewGuid(), TradeStatus.Executed);
+
+        var result = await service.UpdateTradeStatus(dto);
+
+        Assert.Null(result);
+        tradesRepo.Verify(r => r.GetTradeById(dto.ID), Times.Once);
+        tradesRepo.Verify(r => r.UpdateTrade(It.IsAny<Trade>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task UpdateTradeStatus_ReturnsNull_WhenUpdateTradeReturnsNull()
+    {
+        var existingTrade = new Trade
+        {
+            ID = Guid.NewGuid(),
+            AccountId = Guid.NewGuid(),
+            SecurityCode = "LMN",
+            Amount = 150m,
+            Type = TradeType.Sell,
+            Status = TradeStatus.Placed
+        };
+        var tradesRepo = new Mock<ITradesRepository>();
+        tradesRepo.Setup(r => r.GetTradeById(existingTrade.ID))
+            .ReturnsAsync(existingTrade);
+        tradesRepo.Setup(r => r.UpdateTrade(It.IsAny<Trade>()))
+            .ReturnsAsync((Trade?)null);
+
+        var accountsRepo = new Mock<IAccountsRepository>();
+        var service = new TradesService(tradesRepo.Object, accountsRepo.Object);
+
+        var dto = new UpdateTradeStatusDto(existingTrade.ID, TradeStatus.Executed);
+
+        var result = await service.UpdateTradeStatus(dto);
+
+        Assert.Null(result);
+
+        tradesRepo.Verify(r => r.GetTradeById(dto.ID), Times.Once);
+        tradesRepo.Verify(r => r.UpdateTrade(It.Is<Trade>(t =>
+            t.ID == existingTrade.ID &&
+            t.Status == dto.Status
+        )), Times.Once);
+    }
+
+    [Fact]
+    public async Task UpdateTradeStatus_ReturnsTradeResponse_WhenUpdateSucceeds()
+    {
+        var tradesRepo = new Mock<ITradesRepository>();
+        var existingTrade = new Trade
+        {
+            ID = Guid.NewGuid(),
+            AccountId = Guid.NewGuid(),
+            SecurityCode = "AAA",
+            Timestamp = DateTime.UtcNow,
+            Amount = 10,
+            Type = TradeType.Buy,
+            Status = TradeStatus.Placed
+        };
+
+        var updatedTrade = new Trade
+        {
+            ID = existingTrade.ID,
+            AccountId = existingTrade.AccountId,
+            SecurityCode = existingTrade.SecurityCode,
+            Timestamp = existingTrade.Timestamp,
+            Amount = existingTrade.Amount,
+            Type = existingTrade.Type,
+            Status = TradeStatus.Executed
+        };
+
+        tradesRepo.Setup(r => r.GetTradeById(existingTrade.ID))
+                  .ReturnsAsync(existingTrade);
+
+        tradesRepo.Setup(r => r.UpdateTrade(It.Is<Trade>(t => t.ID == existingTrade.ID && t.Status == TradeStatus.Executed)))
+                  .ReturnsAsync(updatedTrade);
+
+        var accountsRepo = new Mock<IAccountsRepository>();
+        var service = new TradesService(tradesRepo.Object, accountsRepo.Object);
+
+        var dto = new UpdateTradeStatusDto(existingTrade.ID, TradeStatus.Executed);
+
+        var result = await service.UpdateTradeStatus(dto);
+
+        Assert.NotNull(result);
+        Assert.Equal(updatedTrade.ID, result.ID);
+        Assert.Equal(updatedTrade.Status, result.Status);
+
+        tradesRepo.Verify(r => r.GetTradeById(dto.ID), Times.Once);
+        tradesRepo.Verify(r => r.UpdateTrade(It.Is<Trade>(t => t.Status == TradeStatus.Executed)), Times.Once);
+    }
 }
